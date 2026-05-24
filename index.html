@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tier List Secret - Kovalion</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    .tier { min-height: 120px; }
+    .image-item { transition: all 0.2s; }
+    .image-item:hover { transform: scale(1.05); }
+  </style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+
+  <div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-4xl font-bold text-center mb-8">Tier List Secret</h1>
+
+    <!-- Bouton secret discret -->
+    <div class="flex justify-end mb-4">
+      <button id="secretBtn"
+        class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white rounded-full text-sm flex items-center gap-2">
+        <i class="fas fa-lock"></i>
+        <span>Accès secret</span>
+      </button>
+    </div>
+
+    <!-- Zone des tiers -->
+    <div id="tierList" class="space-y-6"></div>
+
+    <!-- Galerie des images (cachée au départ) -->
+    <div id="gallery" class="hidden mt-10">
+      <h2 class="text-2xl mb-4">Tes Photos</h2>
+      <div id="imageGallery" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4"></div>
+    </div>
+  </div>
+
+  <!-- Modal mot de passe -->
+  <div id="passwordModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center">
+    <div class="bg-zinc-900 p-8 rounded-2xl w-96">
+      <h3 class="text-xl mb-4">Mot de passe requis</h3>
+      <input type="password" id="passwordInput"
+        class="w-full bg-zinc-800 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+        placeholder="Entre le mot de passe">
+      <div class="mt-6 flex gap-4">
+        <button id="cancelBtn" class="flex-1 py-3 bg-zinc-800 rounded-xl">Annuler</button>
+        <button id="submitBtn" class="flex-1 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl">Valider</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tiers = ['S', 'A', 'B', 'C', 'D', 'F'];
+    const colors = {
+      'S': 'bg-yellow-500',
+      'A': 'bg-emerald-500',
+      'B': 'bg-sky-500',
+      'C': 'bg-violet-500',
+      'D': 'bg-orange-500',
+      'F': 'bg-red-500'
+    };
+
+    // === Tes images ici (remplace par tes vraies URLs) ===
+    let myImages = [
+      "https://picsum.photos/id/64/300/300",
+      "https://picsum.photos/id/201/300/300",
+      "https://picsum.photos/id/237/300/300",
+      "https://picsum.photos/id/180/300/300",
+      "https://picsum.photos/id/251/300/300",
+      "https://picsum.photos/id/312/300/300"
+      // Ajoute ici tes vraies URLs d'images (imgur, discord, etc.)
+    ];
+
+    let draggedItem = null;
+
+    function createTierList() {
+      const container = document.getElementById('tierList');
+      container.innerHTML = '';
+
+      tiers.forEach(tier => {
+        const div = document.createElement('div');
+        div.className = `tier rounded-2xl p-4 ${colors[tier]} bg-opacity-10 border border-white/10`;
+        div.innerHTML = `
+          <div class="text-2xl font-bold mb-3">${tier}</div>
+          <div data-tier="${tier}" class="tier-dropzone min-h-[120px] flex flex-wrap gap-3"></div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function createGallery() {
+      const gallery = document.getElementById('imageGallery');
+      gallery.innerHTML = '';
+
+      myImages.forEach((url, index) => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = 'image-item w-full aspect-square object-cover rounded-xl cursor-grab border border-white/10';
+        img.draggable = true;
+        img.dataset.index = index;
+
+        img.addEventListener('dragstart', (e) => {
+          draggedItem = img;
+        });
+
+        gallery.appendChild(img);
+      });
+    }
+
+    // Drag & Drop
+    document.addEventListener('dragover', (e) => e.preventDefault());
+    document.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (!draggedItem) return;
+
+      const dropzone = e.target.closest('.tier-dropzone');
+      if (dropzone) {
+        dropzone.appendChild(draggedItem);
+      }
+    });
+
+    // Bouton secret + mot de passe
+    document.getElementById('secretBtn').addEventListener('click', () => {
+      document.getElementById('passwordModal').classList.remove('hidden');
+      document.getElementById('passwordInput').focus();
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      document.getElementById('passwordModal').classList.add('hidden');
+    });
+
+    document.getElementById('submitBtn').addEventListener('click', () => {
+      const input = document.getElementById('passwordInput').value;
+      if (input === 'kovalion') {
+        document.getElementById('passwordModal').classList.add('hidden');
+        document.getElementById('gallery').classList.remove('hidden');
+        createGallery();
+      } else {
+        alert("Mot de passe incorrect");
+      }
+    });
+
+    // Init
+    createTierList();
+  </script>
+</body>
+</html>
